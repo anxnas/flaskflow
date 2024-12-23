@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Транзакция #{{ transaction.id }}</h1>
+
+<ul>
+  <li>Пользователь: {{ transaction.user.username }}</li>
+  <li>Сумма: {{ transaction.amount }}</li>
+  <li>Комиссия: {{ transaction.commission }}</li>
+  <li>Статус: {{ transaction.status }}</li>
+  <li>Дата создания: {{ transaction.created_at }}</li>
+</ul>
+
+{% if transaction.status == 'pending' %}
+<form method="POST">
+  {{ form.hidden_tag() }}
+  <div class="mb-3">
+    {{ form.status.label }}
+    {{ form.status(class="form-select") }}
+  </div>
+  <button class="btn btn-primary" type="submit">{{ form.submit.label }}</button>
+</form>
+{% else %}
+<div class="alert alert-warning">
+  Статус уже не "pending", изменить нельзя.
+</div>
+{% endif %}
+{% endblock %}

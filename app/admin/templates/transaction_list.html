@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Список транзакций</h1>
+
+<!-- Фильтрация по user_id и статусу -->
+<form method="GET" class="row g-3 mb-3">
+  <div class="col-auto">
+    <label for="user_id" class="visually-hidden">User ID</label>
+    <input type="text" name="user_id" id="user_id" class="form-control" placeholder="ID пользователя" value="{{ request.args.get('user_id') }}">
+  </div>
+  <div class="col-auto">
+    <select name="status" class="form-select">
+      <option value="">Все статусы</option>
+      <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>pending</option>
+      <option value="confirmed" {% if request.args.get('status') == 'confirmed' %}selected{% endif %}>confirmed</option>
+      <option value="canceled" {% if request.args.get('status') == 'canceled' %}selected{% endif %}>canceled</option>
+      <option value="expired" {% if request.args.get('status') == 'expired' %}selected{% endif %}>expired</option>
+    </select>
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-secondary">Фильтр</button>
+  </div>
+</form>
+
+<!-- Форма автообновления -->
+<form method="POST" class="row g-3 mb-3">
+  {{ form.hidden_tag() }}
+  <div class="col-auto">
+    {{ form.auto_refresh.label }}
+  </div>
+  <div class="col-auto">
+    {{ form.auto_refresh(class="form-select") }}
+  </div>
+  <div class="col-auto">
+    {{ form.submit(class="btn btn-primary") }}
+  </div>
+</form>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Пользователь</th>
+      <th>Сумма</th>
+      <th>Комиссия</th>
+      <th>Статус</th>
+      <th>Дата</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for t in transactions %}
+    <tr>
+      <td>{{ t.id }}</td>
+      <td>{{ t.user.username }}</td>
+      <td>{{ t.amount }}</td>
+      <td>{{ t.commission }}</td>
+      <td>{{ t.status }}</td>
+      <td>{{ t.created_at }}</td>
+      <td>
+        <a class="btn btn-sm btn-primary" href="{{ url_for('admin_bp.transaction_detail', tx_id=t.id) }}">Открыть</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+  // Простое автообновление по выбранному интервалу (секунды)
+  var interval = "{{ form.auto_refresh.data }}";
+  if(interval && interval !== "0"){
+    setTimeout(function(){
+      window.location.reload();
+    }, parseInt(interval) * 1000);
+  }
+</script>
+{% endblock %}

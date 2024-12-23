@@ -1,0 +1,67 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "FlaskFlow API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Авторизация пользователя (получение JWT)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {"type": "string"},
+                  "password": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {"description": "Успешный вход, возвращает JWT"}
+        }
+      }
+    },
+    "/create_transaction": {
+      "post": {
+        "summary": "Создать транзакцию (JWT Required)",
+        "parameters": [],
+        "responses": {
+          "200": {"description": "Успешно"}
+        }
+      }
+    },
+    "/cancel_transaction": {
+      "post": {
+        "summary": "Отменить транзакцию (JWT Required)",
+        "responses": {
+          "200": {"description": "Успешно"},
+          "400": {"description": "Нельзя отменить"}
+        }
+      }
+    },
+    "/check_transaction": {
+      "get": {
+        "summary": "Проверить статус транзакции (JWT Required)",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "transaction_id",
+            "schema": {"type": "integer"},
+            "required": true,
+            "description": "ID транзакции"
+          }
+        ],
+        "responses": {
+          "200": {"description": "Успешно"},
+          "404": {"description": "Транзакция не найдена"}
+        }
+      }
+    }
+  }
+}

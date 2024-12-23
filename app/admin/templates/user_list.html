@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Список пользователей</h1>
+
+<a class="btn btn-primary" href="{{ url_for('admin_bp.user_create') }}">Создать нового</a>
+<hr>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Имя пользователя</th>
+      <th>Роль</th>
+      <th>Баланс</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for u in users %}
+    <tr>
+      <td>{{ u.id }}</td>
+      <td>{{ u.username }}</td>
+      <td>{{ u.role }}</td>
+      <td>{{ u.balance }}</td>
+      <td>
+        <a class="btn btn-sm btn-secondary" href="{{ url_for('admin_bp.user_edit', user_id=u.id) }}">Редактировать</a>
+        <form action="{{ url_for('admin_bp.user_delete', user_id=u.id) }}" method="POST" style="display:inline;">
+          <button class="btn btn-sm btn-danger" onclick="return confirm('Удалить пользователя?')">Удалить</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

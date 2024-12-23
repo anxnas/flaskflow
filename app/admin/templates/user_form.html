@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Пользователь</h1>
+
+<form method="POST">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+        {{ form.username.label }}
+        {{ form.username(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.password.label }}
+        {{ form.password(class="form-control") }}
+        <small class="text-muted">Оставьте пустым, если не хотите менять пароль</small>
+    </div>
+    <div class="mb-3">
+        {{ form.balance.label }}
+        {{ form.balance(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.commission_rate.label }}
+        {{ form.commission_rate(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.webhook_url.label }}
+        {{ form.webhook_url(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.role.label }}
+        {{ form.role(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        {{ form.usdt_wallet.label }}
+        {{ form.usdt_wallet(class="form-control") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">{{ form.submit.label }}</button>
+</form>
+{% endblock %}

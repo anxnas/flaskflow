@@ -1,0 +1,33 @@
+version: '3.7'
+
+services:
+  web:
+    build: .
+    container_name: my_flask_app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - SECRET_KEY=super-secret-key
+      - JWT_SECRET_KEY=my-jwt-key
+      - DATABASE_URL=postgresql://testuser:testpassword@db:5432/testdb
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  db:
+    image: postgres:15
+    container_name: my_postgres
+    environment:
+      - POSTGRES_USER=testuser
+      - POSTGRES_PASSWORD=testpassword
+      - POSTGRES_DB=testdb
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:6
+    container_name: my_redis
+    ports:
+      - "6379:6379"

@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Дашборд</h1>
+<div class="row">
+  <div class="col-md-3">
+    <div class="card mb-3">
+      <div class="card-body text-center">
+        <h5 class="card-title">Пользователи</h5>
+        <p class="card-text display-6">{{ total_users }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card mb-3">
+      <div class="card-body text-center">
+        <h5 class="card-title">Транзакции</h5>
+        <p class="card-text display-6">{{ total_transactions }}</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card mb-3">
+      <div class="card-body text-center">
+        <h5 class="card-title">Сумма за сегодня</h5>
+        <p class="card-text display-6">{{ sum_of_today_transactions }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h3>Последние транзакции</h3>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Пользователь</th>
+      <th>Сумма</th>
+      <th>Статус</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for tx in latest_transactions %}
+    <tr>
+      <td>{{ tx.id }}</td>
+      <td>{{ tx.user.username }}</td>
+      <td>{{ tx.amount }}</td>
+      <td>{{ tx.status }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
