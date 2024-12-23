@@ -21,7 +21,7 @@ def calculate_commission(user, amount: str) -> Decimal:
 def create_jwt_token(user_id: int, secret_key: str, algorithm: str, expires_minutes: int=60) -> str:
     now = datetime.datetime.utcnow()
     payload = {
-        "sub": user_id,
+        "sub": str(user_id),
         "iat": now,
         "exp": now + datetime.timedelta(minutes=expires_minutes)
     }

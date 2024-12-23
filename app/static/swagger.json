@@ -1,0 +1,376 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "FlaskFlow API",
+    "version": "1.0.0",
+    "description": "Описание API для управления транзакциями и авторизации. Все запросы (кроме /auth/login) требуют JWT-токен в заголовке Authorization: Bearer <токен>."
+  },
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "summary": "Авторизация (получение JWT)",
+        "tags": ["Auth"],
+        "description": "Авторизация пользователя по имени и паролю. Возвращает JWT-токен при успешном входе.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "username": "admin",
+                "password": "adminpass"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешный логин",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginSuccessResponse"
+                },
+                "example": {
+                  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неверные учётные данные",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Неверные учётные данные"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/create_transaction": {
+      "post": {
+        "summary": "Создать транзакцию",
+        "tags": ["Transactions"],
+        "description": "Создаёт новую транзакцию для текущего пользователя. Требуется JWT-токен.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTransactionRequest"
+              },
+              "example": {
+                "amount": 150.75
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Транзакция успешно создана",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateTransactionSuccess"
+                },
+                "example": {
+                  "message": "Транзакция создана",
+                  "transaction_id": 123
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Проблема с данными запроса",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Поле 'amount' обязательно"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствует или неверный токен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Невалидный или истёкший токен"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cancel_transaction": {
+      "post": {
+        "summary": "Отменить транзакцию",
+        "tags": ["Transactions"],
+        "description": "Отменяет транзакцию, если она в статусе pending. Требуется JWT-токен.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CancelTransactionRequest"
+              },
+              "example": {
+                "transaction_id": 123
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Транзакция успешно отменена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CancelTransactionSuccess"
+                },
+                "example": {
+                  "message": "Транзакция отменена"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Невозможно отменить транзакцию (например, уже не pending)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Нельзя отменить транзакцию в статусе canceled"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствует или неверный токен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Невалидный или истёкший токен"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Транзакция не найдена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Транзакция не найдена"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/check_transaction": {
+      "get": {
+        "summary": "Проверить статус транзакции",
+        "tags": ["Transactions"],
+        "description": "Возвращает статус указанной транзакции. Требуется JWT-токен.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transaction_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "ID транзакции"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Информация о статусе",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckTransactionSuccess"
+                },
+                "example": {
+                  "transaction_id": 123,
+                  "status": "pending"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Нет transaction_id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Необходимо передать 'transaction_id'"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Отсутствует или неверный токен",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Невалидный или истёкший токен"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Транзакция не найдена",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "example": {
+                  "error": "Транзакция не найдена"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Вставляйте в заголовок Authorization: Bearer <JWT-токен>"
+      }
+    },
+    "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Имя пользователя"
+          },
+          "password": {
+            "type": "string",
+            "description": "Пароль пользователя"
+          }
+        },
+        "required": ["username", "password"]
+      },
+      "LoginSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "description": "JWT-токен для дальнейших запросов"
+          }
+        }
+      },
+      "CreateTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "format": "float",
+            "description": "Сумма транзакции"
+          }
+        },
+        "required": ["amount"]
+      },
+      "CreateTransactionSuccess": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "transaction_id": { "type": "integer" }
+        }
+      },
+      "CancelTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "type": "integer",
+            "description": "ID транзакции"
+          }
+        },
+        "required": ["transaction_id"]
+      },
+      "CancelTransactionSuccess": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        }
+      },
+      "CheckTransactionSuccess": {
+        "type": "object",
+        "properties": {
+          "transaction_id": { "type": "integer" },
+          "status": {
+            "type": "string",
+            "description": "Текущий статус (pending, confirmed, canceled, expired)"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Описание ошибки"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
+}

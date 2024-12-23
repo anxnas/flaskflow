@@ -1,9 +1,9 @@
 from flask import Flask, redirect, url_for
+from flask_swagger_ui import get_swaggerui_blueprint
 from .extensions import db, migrate, login_manager, celery, jwt, logger
 from config import Config
 from .admin import admin_bp
 from api import api_bp
-from user_area import user_bp
 from cli import cli_bp
 
 def create_app(config_class=Config) -> Flask:
@@ -25,8 +25,20 @@ def create_app(config_class=Config) -> Flask:
 
     app.register_blueprint(admin_bp, url_prefix="/admin")
     app.register_blueprint(api_bp, url_prefix="/api")
-    app.register_blueprint(user_bp, url_prefix="/user")
     app.register_blueprint(cli_bp)
+
+    # Swagger UI — настройки
+    SWAGGER_URL = '/api/docs'  # URL, где будет Swagger UI
+    API_URL = '/static/swagger.json'  # Откуда брать swagger.json (лежит в папке static/)
+    swagger_ui_blueprint = get_swaggerui_blueprint(
+        SWAGGER_URL,
+        API_URL,
+        config={
+            'app_name': "FlaskFlow API",  # Название приложения (отобразится в UI)
+        }
+    )
+    # Регистрируем blueprint Swagger’а
+    app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 
     @app.route("/")
     def index():

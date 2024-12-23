@@ -57,3 +57,7 @@ $RECYCLE.BIN/
 
 # If you are using Linux:
 *~
+/migrations/
+/stderr
+/tests/stderr
+/.coverage
